@@ -1,4 +1,5 @@
 import threading
+import asyncio
 from flask import Flask
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
@@ -6,10 +7,10 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes
 # ✅ Apna Bot Token yahan daalo
 BOT_TOKEN = "8772470673:AAFn2Wu-IkN4RjXWVYwqlQJfHIX-qHfUD8A"
 
-# Flask app — Render ke liye
-app = Flask(__name__)
+# Flask app
+flask_app = Flask(__name__)
 
-@app.route('/')
+@flask_app.route('/')
 def home():
     return "✅ Setty Brother Welcome Bot chal raha hai!"
 
@@ -45,19 +46,22 @@ async def welcome_new_member(update: Update, context: ContextTypes.DEFAULT_TYPE)
             parse_mode="Markdown"
         )
 
-def run_bot():
-    import asyncio
-    asyncio.set_event_loop(asyncio.new_event_loop())
+async def run_bot():
     bot_app = Application.builder().token(BOT_TOKEN).build()
     bot_app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome_new_member))
     print("✅ Bot chal raha hai...")
-    bot_app.run_polling()
+    async with bot_app:
+        await bot_app.start()
+        await bot_app.updater.start_polling()
+        await asyncio.Event().wait()
+
+def start_bot():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_bot())
 
 if __name__ == "__main__":
-    # Bot alag thread mein chalao
-    bot_thread = threading.Thread(target=run_bot)
+    bot_thread = threading.Thread(target=start_bot)
     bot_thread.daemon = True
     bot_thread.start()
-
-    # Flask web server chalao
-    app.run(host="0.0.0.0", port=10000)
+    flask_app.run(host="0.0.0.0", port=10000)
