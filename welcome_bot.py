@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 # ✅ Apna Bot Token yahan daalo
-BOT_TOKEN = "APNA_BOT_TOKEN_YAHAN_DAALO"
+BOT_TOKEN = "8772470673:AAFn2Wu-IkN4RjXWVYwqlQJfHIX-qHfUD8A"
 
 # Flask app — Render ke liye
 app = Flask(__name__)
